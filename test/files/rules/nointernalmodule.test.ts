@@ -11,3 +11,8 @@ declare module "hoge" {
 }
 declare module 'fuga' {
 }
+
+namespace foo.bar {
+}
+namespace foo.bar.baz {
+}

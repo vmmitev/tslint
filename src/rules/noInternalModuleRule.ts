@@ -24,12 +24,22 @@ export class Rule extends Lint.Rules.AbstractRule {
 
 class NoInternalModuleWalker extends Lint.RuleWalker {
     public visitModuleDeclaration(node: ts.ModuleDeclaration) {
-        if (Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace)) {
+        if (this.isNamespaceFlagSetRecurseParents(node)) {
             // ok namespace
         } else if (node.name.kind === ts.SyntaxKind.Identifier) {
             // for external modules, node.name will be a LiteralExpression instead of Identifier
             this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING));
         }
         super.visitModuleDeclaration(node);
+    }
+
+    private isNamespaceFlagSetRecurseParents(node: ts.Node): boolean {
+        for (; node.parent; node = node.parent) {
+            if (Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
