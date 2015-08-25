@@ -34,12 +34,16 @@ class NoInternalModuleWalker extends Lint.RuleWalker {
     }
 
     private isNamespaceFlagSetRecurseParents(node: ts.Node): boolean {
-        for (; node.parent; node = node.parent) {
+        for (; node.parent != null && !this.isNestedModuleDeclaration(node); node = node.parent) {
             if (Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private isNestedModuleDeclaration(node: ts.Node): boolean {
+        return node.flags === 0;
     }
 }

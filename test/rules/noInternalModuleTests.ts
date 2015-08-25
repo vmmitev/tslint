@@ -23,7 +23,10 @@ describe("<no-internal-module>", () => {
         const actualFailures = Lint.Test.applyRuleOnFile(fileName, NoInternalModule);
         const expectedFailures = [
             Lint.Test.createFailure(fileName, [4, 1], [4, 15], failureString),
-            Lint.Test.createFailure(fileName, [7, 1], [7, 24], failureString)
+            Lint.Test.createFailure(fileName, [7, 1], [7, 24], failureString),
+            Lint.Test.createFailure(fileName, [25, 5], [28, 6], failureString),
+            Lint.Test.createFailure(fileName, [31, 1], [36, 2], failureString),
+            Lint.Test.createFailure(fileName, [33, 9], [33, 31], failureString)
         ];
 
         Lint.Test.assertFailuresEqual(actualFailures, expectedFailures);
