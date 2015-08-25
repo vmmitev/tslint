@@ -21,16 +21,16 @@ namespace foo {
     }
 }
 
-namespace foo {
-    module bar {
-        namespace baz {
+namespace foo.bar {
+    module baz {
+        namespace buzz {
         }
     }
 }
 
-module foo {
-    namespace bar {
-        module bar {
+module foo.bar {
+    namespace baz {
+        module buzz {
         }
     }
 }

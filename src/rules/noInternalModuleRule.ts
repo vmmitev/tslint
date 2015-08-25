@@ -24,26 +24,29 @@ export class Rule extends Lint.Rules.AbstractRule {
 
 class NoInternalModuleWalker extends Lint.RuleWalker {
     public visitModuleDeclaration(node: ts.ModuleDeclaration) {
-        if (this.isNamespaceFlagSetRecurseParents(node)) {
-            // ok namespace
-        } else if (node.name.kind === ts.SyntaxKind.Identifier) {
-            // for external modules, node.name will be a LiteralExpression instead of Identifier
+        if (this.isInternalModuleDeclaration(node)) {
             this.addFailure(this.createFailure(node.getStart(), node.getWidth(), Rule.FAILURE_STRING));
         }
         super.visitModuleDeclaration(node);
     }
 
-    private isNamespaceFlagSetRecurseParents(node: ts.Node): boolean {
-        for (; node.parent != null && !this.isNestedModuleDeclaration(node); node = node.parent) {
-            if (Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace)) {
-                return true;
-            }
-        }
-
-        return false;
+    private isInternalModuleDeclaration(node: ts.ModuleDeclaration): boolean {
+        // for external modules, node.name will be a LiteralExpression instead of Identifier
+        return node.name.kind === ts.SyntaxKind.Identifier &&
+            !(this.isNamespaceDeclaration(node) || this.isNestedDeclaration(node));
     }
 
-    private isNestedModuleDeclaration(node: ts.Node): boolean {
-        return node.flags === 0;
+    private isNamespaceDeclaration(node: ts.ModuleDeclaration): boolean {
+        // the declaration may be nested, so recurse until the nesting chain breaks or reaches a namespace node
+        return node != null &&
+            this.isNestedDeclaration(node) &&
+            this.isNamespaceDeclaration(<ts.ModuleDeclaration> node.parent) ||
+            Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace);
+    }
+
+    private isNestedDeclaration(node: ts.ModuleDeclaration): boolean {
+        // top level declarations begin with "module" or "namespace", nested ones - with their names
+        return node.name != null &&
+            node.getText().indexOf(node.name.text) === 0;
     }
 }
