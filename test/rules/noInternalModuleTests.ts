@@ -26,7 +26,11 @@ describe("<no-internal-module>", () => {
             Lint.Test.createFailure(fileName, [7, 1], [7, 24], failureString),
             Lint.Test.createFailure(fileName, [25, 5], [28, 6], failureString),
             Lint.Test.createFailure(fileName, [31, 1], [36, 2], failureString),
-            Lint.Test.createFailure(fileName, [33, 9], [33, 32], failureString)
+            Lint.Test.createFailure(fileName, [33, 9], [33, 32], failureString),
+            Lint.Test.createFailure(fileName, [44, 1], [44, 30], failureString),
+            Lint.Test.createFailure(fileName, [46, 1], [46, 35], failureString),
+            Lint.Test.createFailure(fileName, [49, 1], [49, 21], failureString),
+            Lint.Test.createFailure(fileName, [50, 1], [50, 22], failureString)
         ];
 
         Lint.Test.assertFailuresEqual(actualFailures, expectedFailures);

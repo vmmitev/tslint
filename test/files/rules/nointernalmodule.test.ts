@@ -34,3 +34,19 @@ module foo.bar {
         }
     }
 }
+
+namespace name.namespace {
+}
+namespace namespace.name {
+}
+
+// intentionally malformed for test cases, do not format
+declare module declare
+.dec{}
+declare  module dec . declare  {
+}
+
+module  mod.module{}
+module module.mod
+{
+}

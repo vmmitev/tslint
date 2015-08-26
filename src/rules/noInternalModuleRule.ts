@@ -30,23 +30,26 @@ class NoInternalModuleWalker extends Lint.RuleWalker {
         super.visitModuleDeclaration(node);
     }
 
-    private isInternalModuleDeclaration(node: ts.ModuleDeclaration): boolean {
-        // for external modules, node.name will be a LiteralExpression instead of Identifier
-        return node.name.kind === ts.SyntaxKind.Identifier &&
-            !(this.isNamespaceDeclaration(node) || this.isNestedDeclaration(node));
+    private isInternalModuleDeclaration(node: ts.ModuleDeclaration) {
+        // an internal module declaration is not a namespace or a nested declaration
+        // for external modules, node.name.kind will be a LiteralExpression instead of Identifier
+        return node.name.kind === ts.SyntaxKind.Identifier
+            && !(this.isNamespaceDeclaration(node) || this.isNestedDeclaration(node));
     }
 
+    // todo: remove this method and replace it with only the flag check when https://github.com/Microsoft/TypeScript/issues/4436 is fixed
     private isNamespaceDeclaration(node: ts.ModuleDeclaration): boolean {
-        // the declaration may be nested, so recurse until the nesting chain breaks or reaches a namespace node
-        return node != null &&
-            this.isNestedDeclaration(node) &&
-            this.isNamespaceDeclaration(<ts.ModuleDeclaration> node.parent) ||
-            Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace);
+        // the declaration may be nested and not have the namespace flag
+        // recurse until the nesting chain breaks or reaches a node flagged as a namespace
+        return node != null
+            && this.isNestedDeclaration(node)
+            && this.isNamespaceDeclaration(<ts.ModuleDeclaration> node.parent)
+            || Lint.isNodeFlagSet(node, ts.NodeFlags.Namespace);
     }
 
-    private isNestedDeclaration(node: ts.ModuleDeclaration): boolean {
-        // top level declarations begin with "module" or "namespace", nested ones - with their names
-        return node.name != null &&
-            node.getText().indexOf(node.name.text) === 0;
+    private isNestedDeclaration(node: ts.ModuleDeclaration) {
+        // in a declaration expression like 'module a.b.c' - 'a' is the top level module declaration node and 'b' and 'c' are nested
+        // therefore we can depend that a node's position will only match with its name's position for nested nodes
+        return node.name.pos === node.pos;
     }
 }
